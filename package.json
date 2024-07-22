@@ -1,0 +1,19 @@
+{
+  "name": "RednerAndMe",
+  "version": "1.0.0",
+  "description": "Playing around with Render",
+  "main": "serverSide.js",
+  "scripts": {
+    "devStart": "nodemon serverSide.js"
+  },
+  "keywords": [],
+  "author": "dgw",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
