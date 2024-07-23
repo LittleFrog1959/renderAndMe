@@ -4,7 +4,7 @@
   "description": "Playing around with Render",
   "main": "serverSide.js",
   "scripts": {
-    "devStart": "nodemon serverSide.js"
+    "devStart": "nodemon serverSide.js",
     "start": "node serverSide.js"
   },
   "keywords": [],
