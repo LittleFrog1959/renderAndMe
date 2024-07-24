@@ -1,25 +1,19 @@
 const express = require ('express');
 const app = express ();
+app.set ('view engine', 'ejs')
+
 const port = process.env.PORT || 1000;
 
-app.get("/", (req, res) => res.type('html').send(html));
+app.get("/", (req, res) => {
+    res.render ('index', {testing: 'hello June'});
+});
 
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+const userRouter = require ('./routes/users')
+app.use ("/users", userRouter)
+
+const server = app.listen(port, () => console.log ("Example app listening on port", port));
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
 
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render And Me</title>
-  </head>
-  <body>
-    <section>
-      Hello from dgw
-    </section>
-  </body>
-</html>
-`
 
