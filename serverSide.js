@@ -2,6 +2,10 @@ const express = require ('express');
 const app = express ();
 app.set ('view engine', 'ejs')
 
+app.use(express.static("public"))
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+
 const port = process.env.PORT || 1000;
 
 app.get("/", (req, res) => {
@@ -15,5 +19,3 @@ const server = app.listen(port, () => console.log ("Example app listening on por
 
 server.keepAliveTimeout = 120 * 1000;
 server.headersTimeout = 120 * 1000;
-
-
