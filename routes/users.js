@@ -5,7 +5,7 @@ router.use(logger)
 
 router.get("/", (req, res) => {
   console.log(req.query.name)
-  res.send("User List")
+  res.send("The user List")
 })
 
 router.get("/new", (req, res) => {
@@ -13,7 +13,7 @@ router.get("/new", (req, res) => {
 })
 
 router.post("/", (req, res) => {
-  const isValid = false
+  const isValid = true
   if (isValid) {
     users.push({ firstName: req.body.firstName })
     res.redirect(`/users/${users.length - 1}`)

@@ -8,10 +8,10 @@ app.use(express.json())
 
 const port = process.env.PORT || 1000;
 
-app.get("/", (req, res) => {
-    res.render ('index', {testing: 'hello June'});
-    console.log ("Just printed index.ejs")
-});
+//app.get("/", (req, res) => {
+//    res.render ('index', {testing: 'hello June'});
+//    console.log ("Just printed index.ejs")
+//});
 
 const userRouter = require ('./routes/users')
 app.use ("/users", userRouter)
