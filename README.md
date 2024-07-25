@@ -8,7 +8,7 @@ My learning curve is based around various YT videos (and supporting repos if ava
 |-----|--------|---|
 |Node and Express|[YT](https://www.youtube.com/watch?v=SccSCuHhOw0&t=1448s)|[Git](https://github.com/WebDevSimplified/express-crash-course)|
 |Middleware overview|[YT](https://www.youtube.com/watch?v=lY6icfhap2o)||
-|CSS||
+|CSS|[YT](https://www.youtube.com/watch?v=1PnVor36_40)||
 |Location of CSS files|[ST](https://stackoverflow.com/questions/18629327/adding-css-file-to-ejs)||
 
 # Render notes
