@@ -1,8 +1,8 @@
 # Introduction
 This is a test program built for me to learn JS and related technologies running on a cloud platform.
 
-# YouTube & Git support
-My learning curve is based around various YT videos (and supporting repos if available) as follows;
+# Community support
+My learning curve is based around various YT videos (and supporting repos if available) together with loads of hints from Stacktrace as follows;
 
 |Topic|You Tube|Git|
 |-----|--------|---|
@@ -20,3 +20,4 @@ I found it easy to get started with Render but there were a few gotchas;
 
 # General notes
 Here's some other random thoughts / experiences;
+* External CSS worksreally well with ejs but you have to get the style sheet in the correct place.  The hint above tells you about this.
