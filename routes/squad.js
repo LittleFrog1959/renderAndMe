@@ -1,28 +1,25 @@
+let sv = require ('../sharedData.js')
+
 const express = require("express")
 const router = express.Router()
 
 router.use(logger)
 
 router.get("/", (req, res) => {
-  console.log(req.query.name)
-  res.send("The user List")
+  res.render("squad/squadSelection", {size:sv.squadSize, names:sv.squadNames, numbers:sv.squadNumbers})
 })
 
+/*
 router.get("/new", (req, res) => {
   res.render("users/new")
 })
-
-router.post("/", (req, res) => {
-  const isValid = true
-  if (isValid) {
-    users.push({ firstName: req.body.firstName })
-    res.redirect(`/users/${users.length - 1}`)
-  } else {
-    console.log("Error")
-    res.render("users/new", { firstName: req.body.firstName })
-  }
+*/
+router.post("/squadUpdate", (req, res) => {
+    sv.squadNames = req.body.Name
+    sv.squadNumbers = req.body.Number
+    res.redirect("/court")
 })
-
+/*
 router
   .route("/:id")
   .get((req, res) => {
@@ -41,9 +38,10 @@ router.param("id", (req, res, next, id) => {
   req.user = users[id]
   next()
 })
+*/
 
 function logger(req, res, next) {
-  console.log("Users", req.originalUrl)
+  console.log("Squad logger", req.method, req.originalUrl)
   next()
 }
 
