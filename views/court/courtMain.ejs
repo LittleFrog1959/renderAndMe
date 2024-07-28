@@ -32,7 +32,9 @@
                 context.lineWidth = 4;
                 context.strokeStyle = "blue";
                 context.stroke ()            
-            })            
+            })    
+            // Expand the supplied JSON object and plant it in the textarea
+            document.getElementById ("eventDump").value = '<%-msg%>'
         }
     </script>
     <h1>Gather game stats</h1>
@@ -43,6 +45,9 @@
         <div class="nextTo">
         </div>
         <div class="nextTo">
+            <textarea id="eventDump" name="Comment" rows="18" cols="65">????</textarea>
+            <br>            
+            <br>            
             <form action="/squad">
                 <input type="submit" value="Change squad" class="cNavigation">
             </form>
@@ -71,23 +76,33 @@
                 <% }) %>
             </select>
             <br>
+            
+            <label for="Group1">Score</label><br>
+            <input type="radio" id="1Point" name="event" value="Score1pt"> <label for="Event1">Score 1pt</label>            
+            <input type="radio" id="3Point" name="event" value="Score3pt"> <label for="Event2">Score 3pt</label><br>
+            <input type="radio" id="1Free" name="event" value="Score1free"> <label for="Event3">Score 1 Free Throw</label>
+            <input type="radio" id="2Free" name="event" value="Score2free"> <label for="Event4">Score 2 Free Throw</label><br>
 
             <label for="Group1">Offence</label><br>
-            <input type="radio" id="Shot" name="event" value="Shot"> <label for="Event1">Shot</label><br>
-            <input type="radio" id="Assist" name="event" value="Assist"> <label for="Event2">Assist</label><br>
-            <input type="radio" id="FastBreak" name="event" value="OffenceFastBreak"> <label for="Event3">Fast break</label><br>
+            <input type="radio" id="Shot1Point" name="event" value="Shot1pt"> <label for="Event1">Shot 1pt</label>            
+            <input type="radio" id="Shot3Point" name="event" value="Shot3pt"> <label for="Event2">Shot 3pt</label><br>
+            <input type="radio" id="1FreeThrow" name="event" value="1free"> <label for="Event3">1 Free Throw</label>
+            <input type="radio" id="2FreeThrow" name="event" value="2free"> <label for="Event4">2 Free Throw</label><br>
+            <input type="radio" id="Assist" name="event" value="Assist"> <label for="Event5">Assist</label><br>
+            <input type="radio" id="FastBreak" name="event" value="OffenceFastBreak"> <label for="Event6">Fast break</label><br>
 
             <label for="Group1">Defence</label><br>
-            <input type="radio" id="Steal" name="event" value="Steal"> <label for="Event4">Steal</label><br> 
-            <input type="radio" id="TurnOver" name="event" value="TurnOver"> <label for="Event5">Turn over</label><br> 
-            <input type="radio" id="BlockedShot" name="event" value="BlockedShot"> <label for="Event6">Blocked shot</label><br> 
-            <input type="radio" id="FastBreak" name="event" value="DefenceFastbreak"> <label for="Event7">Fast break</label><br> 
+            <input type="radio" id="Steal" name="event" value="Steal"> <label for="Event7">Steal</label><br> 
+            <input type="radio" id="TurnOver" name="event" value="TurnOver"> <label for="Event8">Turn over</label><br> 
+            <input type="radio" id="BlockedShot" name="event" value="BlockedShot"> <label for="Event9">Blocked shot</label><br> 
+            <input type="radio" id="FastBreak" name="event" value="DefenceFastbreak"> <label for="Event10">Fast break</label><br> 
 
             <label for="Group1">Fouls</label><br>
-            <input type="radio" id="OffenceFoul" name="event" value="OffenceFoul"> <label for="Event8">Offence foul</label><br> 
-            <input type="radio" id="DefenceFoul" name="event" value="DefenceFoul"> <label for="Event9">Defence foul</label><br> 
+            <input type="radio" id="OffenceFoul" name="event" value="OffenceFoul"> <label for="Event11">Offence foul</label><br> 
+            <input type="radio" id="DefenceFoul" name="event" value="DefenceFoul"> <label for="Event12">Defence foul</label><br>
             <input type="submit" value="Submit"  class="cKind">
             </form>
+
         </div>
         <div class="nextTo">
             <form action="/court/statEvent" method="post">

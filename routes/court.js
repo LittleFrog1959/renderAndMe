@@ -1,4 +1,5 @@
 let sv = require ('../sharedData.js')
+let msgHistory = []
 
 const express = require("express")
 const router = express.Router()
@@ -6,7 +7,7 @@ const router = express.Router()
 router.use(logger)
 
 router.get("/", (req, res) => {
-  res.render("court/courtMain", {size: sv.squadSize, numbers: sv.squadNumbers, names:sv.squadNames, refs:sv.teamRefs})
+  res.render("court/courtMain", {size: sv.squadSize, numbers: sv.squadNumbers, names:sv.squadNames, refs:sv.teamRefs, msg:JSON.stringify (msgHistory)})
 })
 
 // Receive a game stat event
@@ -25,6 +26,13 @@ router.post("/statEvent", (req, res) => {
             sv.teamRefs = req.body.team
             }
         }
+    }
+    // Save the event in a shared variable for future development
+    sv.eventRaw = req.body
+    // Append an ASCII version of the body to a history of up to 10 items
+    count = msgHistory.push (JSON.stringify(sv.eventRaw))
+    if (count > 10) {
+        msgHistory.shift ()
     }
     console.log (req.body)
     res.redirect ("/court")
