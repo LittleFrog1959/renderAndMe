@@ -7,26 +7,59 @@ const router = express.Router()
 router.use(logger)
 
 router.get("/", (req, res) => {
-  res.render("court/courtMain", {size: sv.squadSize, numbers: sv.squadNumbers, names:sv.squadNames, refs:sv.teamRefs, msg:JSON.stringify (msgHistory)})
+  res.render("court/courtMain", {numbers: sv.squadNumbers, names:sv.squadNames, tRefs:sv.teamRefs, pRefs:sv.playerRefs, msg:JSON.stringify (msgHistory)})
 })
 
 // Receive a game stat event
 router.post("/statEvent", (req, res) => {
-    // Fix teamRefs if the user does not pick any team members (client won't return even an identifier for teamRefs)
-    // and there is a problem that the client returns a string (rather than an array) if there is only one team member
+    // Fix playerRefs if the user does not pick any players (client won't return even an identifier for playerRefs)
+    // and there is a problem that the client returns a string (rather than an array) if there is only one player
     // selected
-    if (req.body.statKind === 'teamUpdate') {
-        if (req.body.team === undefined) {
-            sv.teamRefs = []
+    if (req.body.statKind === 'playerUpdate') {
+        if (req.body.players === undefined) {
+            console.log("No players")
+            sv.playerRefs = []
         } else {
             
-            if (typeof req.body.team === 'string') {
-                sv.teamRefs [0] = req.body.team
+            if (typeof req.body.players === 'string') {
+                console.log("One player")
+                sv.playerRefs = []
+                sv.playerRefs [0] = req.body.players
             } else {
-            sv.teamRefs = req.body.team
+                console.log("More than one player")
+                sv.playerRefs = req.body.players
             }
         }
     }
+
+    if (req.body.statKind === 'gameStart') {
+        "gameStartedAt"
+//        "currentQuarter"
+//        "quarterTime"
+//        "gameEndedAt"
+    }
+    
+    if (req.body.statKind === 'quarter1End') {
+    }
+    
+    if (req.body.statKind === 'quarter2Start') {
+    }
+    
+    if (req.body.statKind === 'quarter2End') {
+    }
+    
+    if (req.body.statKind === 'quarter3Start') {
+    }
+    
+    if (req.body.statKind === 'quarter3End') {
+    }
+    
+    if (req.body.statKind === 'quarter4Start') {
+    }
+    
+    if (req.body.statKind === 'gameEnd') {
+    }
+    
     // Save the event in a shared variable for future development
     sv.eventRaw = req.body
     // Append an ASCII version of the body to a history of up to 10 items

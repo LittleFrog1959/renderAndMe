@@ -18,9 +18,9 @@
             image.onload = function() {
                 context.drawImage(image, 0,0, 720, 443);
             };
-            image.src = "./images/BBLcourt.png";
+            image.src = "./images/bblCourt.png";
         
-            canvas.addEventListener ('mousedown', function (e) {
+            canvas.addEventListener ('mousedown', function (e) {                
                 x = e.pageX - e.srcElement.offsetLeft;
                 y = e.pageY - e.srcElement.offsetTop;
                 document.getElementsByName('xPosition')[0].value = x;
@@ -31,10 +31,14 @@
                 context.fill();
                 context.lineWidth = 4;
                 context.strokeStyle = "blue";
-                context.stroke ()            
+                context.stroke ()
             })    
             // Expand the supplied JSON object and plant it in the textarea
             document.getElementById ("eventDump").value = '<%-msg%>'
+            
+            document.getElementById ("gameStartButton").onclick = function() {
+                document.getElementById ("gameStartedAt").value = "hello"
+            };
         }
     </script>
     <h1>Gather game stats</h1>
@@ -46,10 +50,12 @@
         </div>
         <div class="nextTo">
             <textarea id="eventDump" name="Comment" rows="18" cols="65">????</textarea>
-            <br>            
-            <br>            
+            <br>   
+            <br>
+            <br>     
+            <br>                 
             <form action="/squad">
-                <input type="submit" value="Change squad" class="cNavigation">
+                <input type="submit" value="Change team" class="cNavigation">
             </form>
             <br>
             <form action="/eventViewer">
@@ -59,8 +65,25 @@
             <form action="/">
                 <input type="submit" value="Log out" class="cNavigation">
             </form>
+        </div>       
+        <div class="nextTo">
+            <label for="Player">Game started at</label>
             <br>
-        </div>        
+            <input type="gameStartedAt" id="gameStartedAt" name="gameStartedAt" disabled>
+            <br>
+            <label for="Player" id="currentQuarter">Current quarter</label>
+            <br>
+            <input type="currentQuarter" id="currentQuarter" name="currentQuarter" disabled>
+            <br>
+            <label for="Player" id="currentQuarter">Quarter duration</label>
+            <br>
+            <input type="quarterTime" id="quarterTime" name="quarterTime" disabled>
+            <br>
+            <label for="Player" id="currentQuarter">Game ended at</label>
+            <br>
+            <input type="gameEndedAt" id="gameEndedAt" name="gameEndedAt" disabled>
+            <br>        
+        </div>
     </div>
     <div>
         <div class="nextTo">
@@ -71,31 +94,32 @@
             <input type="hidden" id="Yposition" name="yPosition"><br>
             <label for="Player">Player:</label>
             <select name="Player" id="Player">
-                <% refs.forEach ( ref => { %>
+                <% pRefs.forEach ( ref => { %>
                     <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
                 <% }) %>
             </select>
             <br>
             
             <label for="Group1">Score</label><br>
-            <input type="radio" id="1Point" name="event" value="Score1pt"> <label for="Event1">Score 1pt</label>            
-            <input type="radio" id="3Point" name="event" value="Score3pt"> <label for="Event2">Score 3pt</label><br>
-            <input type="radio" id="1Free" name="event" value="Score1free"> <label for="Event3">Score 1 Free Throw</label>
-            <input type="radio" id="2Free" name="event" value="Score2free"> <label for="Event4">Score 2 Free Throw</label><br>
+            <input type="radio" id="score2Point" name="event" value="Score2pt"> <label for="Event1">Score 2pt</label>            
+            <input type="radio" id="score3Point" name="event" value="Score3pt"> <label for="Event2">Score 3pt</label><br>
+            <input type="radio" id="score1Free" name="event" value="Score1free"> <label for="Event3">Score 1st Free Throw</label>
+            <input type="radio" id="score2Free" name="event" value="Score2free"> <label for="Event4">Score 2nd Free Throw</label><br>
 
             <label for="Group1">Offence</label><br>
-            <input type="radio" id="Shot1Point" name="event" value="Shot1pt"> <label for="Event1">Shot 1pt</label>            
+            <input type="radio" id="Shot2Point" name="event" value="Shot2pt"> <label for="Event1">Shot 2pt</label>            
             <input type="radio" id="Shot3Point" name="event" value="Shot3pt"> <label for="Event2">Shot 3pt</label><br>
-            <input type="radio" id="1FreeThrow" name="event" value="1free"> <label for="Event3">1 Free Throw</label>
-            <input type="radio" id="2FreeThrow" name="event" value="2free"> <label for="Event4">2 Free Throw</label><br>
+            <input type="radio" id="1FreeThrow" name="event" value="1free"> <label for="Event3">Shot 1st Free Throw</label>
+            <input type="radio" id="2FreeThrow" name="event" value="2free"> <label for="Event4">Shot 2nd Free Throw</label><br>
             <input type="radio" id="Assist" name="event" value="Assist"> <label for="Event5">Assist</label><br>
             <input type="radio" id="FastBreak" name="event" value="OffenceFastBreak"> <label for="Event6">Fast break</label><br>
+            <input type="radio" id="offRebound" name="event" value="OffenceRebound"> <label for="Event10">Rebound</label><br> 
 
             <label for="Group1">Defence</label><br>
             <input type="radio" id="Steal" name="event" value="Steal"> <label for="Event7">Steal</label><br> 
             <input type="radio" id="TurnOver" name="event" value="TurnOver"> <label for="Event8">Turn over</label><br> 
             <input type="radio" id="BlockedShot" name="event" value="BlockedShot"> <label for="Event9">Blocked shot</label><br> 
-            <input type="radio" id="FastBreak" name="event" value="DefenceFastbreak"> <label for="Event10">Fast break</label><br> 
+            <input type="radio" id="defRebound" name="event" value="DefenceRebound"> <label for="Event10">Rebound</label><br> 
 
             <label for="Group1">Fouls</label><br>
             <input type="radio" id="OffenceFoul" name="event" value="OffenceFoul"> <label for="Event11">Offence foul</label><br> 
@@ -106,29 +130,28 @@
         </div>
         <div class="nextTo">
             <form action="/court/statEvent" method="post">
-                <input type="hidden" id="Kind" name="statKind" value="teamUpdate">
+                <input type="hidden" id="Kind" name="statKind" value="playerUpdate">
+                <label for="Group2"><h3>Player selection</h3></label>
                 <table>
                     <tr>
                         <th>On</th>
                         <th>Number</th>
                         <th>Name</th>
                     </tr>
-                    <% for (let i = 0; i < size; i++) { %>
-                        <% if (numbers[i].length > 0 || names[i].length > 0) { %>
+                    <% for (let i = 0; i < tRefs.length; i++) { %>
                             <tr>
-                                <td> <input type="checkbox" id="team" name="team" = value="<%= i %>"
-                                        <% if (refs.includes(i.toString ()) === true){ %>
-                                            checked
-                                        <% } %>
-                                ></td>
-                                <td> <%= numbers[i] %></td>
-                                <td> <%= names[i] %></td>
-                            </tr>
-                        <% } %>
+                            <td> <input type="checkbox" id="players" name="players" = value="<%= tRefs[i] %>"
+                                    <% if (pRefs.includes(tRefs[i].toString ()) === true){ %>
+                                        checked
+                                    <% } %>
+                            ></td>
+                            <td> <%= numbers[tRefs[i]] %></td>
+                            <td> <%= names[tRefs[i]] %></td>
+                        </tr>
                     <% }; %>
                 </table>
                 <br>
-                <input type="Submit" value="Team update" class="cKind">            
+                <input type="Submit" value="Player update" class="cKind">            
             </form>
         </div>
         <div class="nextTo">
@@ -136,11 +159,10 @@
             <input type="hidden" id="Kind" name="statKind" value="TechnicalFoul">
             <label for="TechFoul">Technical foul</label><br>            
             <select name="Player" id="Player">
-                <% for (let i = 0; i < size; i++) { %>
-                    <% if (numbers[i].length > 0 || names[i].length > 0) { %>
-                    <option value="<%= numbers[i] %> <%= names[i] %> "> <%= numbers[i]%> <%= names[i] %></option>
-                    <% } %>
-                <% }; %>
+
+                <% tRefs.forEach ( ref => { %>
+                    <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
+                <% }) %>
                 <option value="Coach">Coach</option>
             </select>
             <br>
@@ -176,8 +198,8 @@
         </div>
         <div class="nextTo">
             <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="gameStart">        
-            <input type="submit" value="Game start" class="cKind">
+            <input type="hidden" id="gameStart" name="statKind" value="gameStart">        
+            <input type="submit" id = "gameStartButton" value="Game start" class="cKind">
             </form>
             <form action="/court/statEvent" method="post">
             <input type="hidden" id="Kind" name="statKind" value="quarter1End">        

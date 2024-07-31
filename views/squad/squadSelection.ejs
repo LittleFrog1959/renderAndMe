@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/css/styles.css">
 
-        <title>Squad Selection</title>
+        <title>Squad & Team Selection</title>
 
         <style>
             table, th, td {
@@ -16,7 +16,7 @@
     </head>
 
     <body>
-        <h1>Squad Selection</h1>
+        <h1>Squad & Team Selection</h1>
         
         <form action="/squad/squadUpdate" method="POST">
             <table>
@@ -24,12 +24,17 @@
                     <th>Ref</th>
                     <th>Number</th>
                     <th>Name</th>
+                    <th>Team?</th>
                 </tr>
                 <% for (let i = 0; i < size; i++) { %>
                     <tr>
                         <td> <%= i + 1 %></td>
                         <td> <input type="text" id="Number" name="Number" value="<%= numbers[i] %>"></td>
                         <td> <input type="text" id="Name" name="Name" value="<%= names[i] %>"></td>
+                        <td> <input type="checkbox" id="TeamSelected" name="TeamSelected" value="<%=i%>"
+                         <% if (teamSelected.includes(i.toString ()) === true){ %>
+                            checked
+                        <% } %> ></td>
                     </tr>
                 <% }; %>
             </table>

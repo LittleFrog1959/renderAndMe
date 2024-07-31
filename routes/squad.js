@@ -6,7 +6,7 @@ const router = express.Router()
 router.use(logger)
 
 router.get("/", (req, res) => {
-  res.render("squad/squadSelection", {size:sv.squadSize, names:sv.squadNames, numbers:sv.squadNumbers})
+  res.render("squad/squadSelection", {size:sv.squadSize, names:sv.squadNames, numbers:sv.squadNumbers, teamSelected:sv.teamRefs})
 })
 
 /*
@@ -17,6 +17,27 @@ router.get("/new", (req, res) => {
 router.post("/squadUpdate", (req, res) => {
     sv.squadNames = req.body.Name
     sv.squadNumbers = req.body.Number
+    // Because we can't write to elements in the req object, we copy the one we're going to mess with to a temp
+    // variable
+    tempTeamSelected = req.body.TeamSelected    
+    // Zap team refs and rebuild it only allowing entries that have a name or number
+    sv.teamRefs= []
+    // Handle the posibility that the user has not picked any people for the team which results in
+    // the routine exiting with an empty array
+    if (typeof tempTeamSelected != "undefined") {
+        // Handle there only being one value in TeamSelected which causes the client to return a string (not
+        // an array)...  So we convert it to an array and then carry on with the processing of the result.
+        if (typeof tempTeamSelected === 'string') {
+            temp = tempTeamSelected
+            tempTeamSelected = []
+            tempTeamSelected.push (temp)
+        }
+        tempTeamSelected.forEach ((element) => {
+            if ((sv.squadNames[element].length > 0) || (sv.squadNumbers[element].length > 0)) {
+                sv.teamRefs.push (element)
+            }
+        })
+    }    
     res.redirect("/court")
 })
 /*
