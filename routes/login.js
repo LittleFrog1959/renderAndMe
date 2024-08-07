@@ -9,6 +9,7 @@ router.get("/", (req, res) => {
 
 router.post("/", (req, res) => {
   var isValid = false
+  console.log (req.body)
   if (req.body.userName == "david") {
         isValid = true
   } else {

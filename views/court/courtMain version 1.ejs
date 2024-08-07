@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=720", initial-scale=1.0">
+  <title>Gather stats</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
+
+    <script>
+        window.onload = function () {
+            var canvas = document.getElementById('courtCanvas');
+            var context = canvas.getContext('2d');
+            var image = new Image();
+            image.onload = function() {
+                context.drawImage(image, 0,0, 720, 443);
+            };
+            image.src = "./images/bblCourt.png";
+        
+            canvas.addEventListener ('mousedown', function (e) {                
+                x = e.pageX - e.srcElement.offsetLeft;
+                y = e.pageY - e.srcElement.offsetTop;
+                document.getElementsByName('xPosition')[0].value = x;
+                document.getElementsByName('yPosition')[0].value = y;
+                context.beginPath ()
+                context.arc (x, y, 2, 0, 6)
+                context.fillStyle = "red";
+                context.fill();
+                context.lineWidth = 4;
+                context.strokeStyle = "blue";
+                context.stroke ()
+            })    
+            // Expand the supplied JSON object and plant it in the textarea
+            document.getElementById ("eventDump").value = '<%-msg%>'
+            
+            document.getElementById ("gameStartButton").onclick = function() {
+                document.getElementById ("gameStartedAt").value = "hello"
+            };
+        }
+    </script>
+    <h1>Gather game stats</h1>
+
+    
+    
+    <div>
+        <div class="nextTo">
+            <canvas id="courtCanvas" width="720" height="443"></canvas>
+        </div>
+        <div class="nextTo">
+        </div>
+        <div class="nextTo">
+            <textarea id="eventDump" name="Comment" rows="18" cols="65">????</textarea>
+            <br>   
+            <br>
+            <br>     
+            <br>                 
+            <form action="/squad">
+                <input type="submit" value="Change team" class="cNavigation">
+            </form>
+            <br>
+            <form action="/eventViewer">
+                <input type="submit" value="Event Viewer" class="cNavigation">
+            </form>
+            <br>
+            <form action="/">
+                <input type="submit" value="Log out" class="cNavigation">
+            </form>
+        </div>       
+        <div class="nextTo">
+            <label for="Player">Game started at</label>
+            <br>
+            <input type="gameStartedAt" id="gameStartedAt" name="gameStartedAt" disabled>
+            <br>
+            <label for="Player" id="currentQuarter">Current quarter</label>
+            <br>
+            <input type="currentQuarter" id="currentQuarter" name="currentQuarter" disabled>
+            <br>
+            <label for="Player" id="currentQuarter">Quarter duration</label>
+            <br>
+            <input type="quarterTime" id="quarterTime" name="quarterTime" disabled>
+            <br>
+            <label for="Player" id="currentQuarter">Game ended at</label>
+            <br>
+            <input type="gameEndedAt" id="gameEndedAt" name="gameEndedAt" disabled>
+            <br>        
+        </div>
+    </div>
+    <div>
+        <div class="nextTo">
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="gameEvent">
+
+            <input type="hidden" id="Xposition" name="xPosition"><br>
+            <input type="hidden" id="Yposition" name="yPosition"><br>
+            <label for="Player">Player:</label>
+            <select name="Player" id="Player">
+                <% pRefs.forEach ( ref => { %>
+                    <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
+                <% }) %>
+            </select>
+            <br>
+            
+            <label for="Group1">Score</label><br>
+            <input type="radio" id="score2Point" name="event" value="Score2pt"> <label for="Event1">Score 2pt</label>            
+            <input type="radio" id="score3Point" name="event" value="Score3pt"> <label for="Event2">Score 3pt</label><br>
+            <input type="radio" id="score1Free" name="event" value="Score1free"> <label for="Event3">Score 1st Free Throw</label>
+            <input type="radio" id="score2Free" name="event" value="Score2free"> <label for="Event4">Score 2nd Free Throw</label><br>
+
+            <label for="Group1">Offence</label><br>
+            <input type="radio" id="Shot2Point" name="event" value="Shot2pt"> <label for="Event1">Shot 2pt</label>            
+            <input type="radio" id="Shot3Point" name="event" value="Shot3pt"> <label for="Event2">Shot 3pt</label><br>
+            <input type="radio" id="1FreeThrow" name="event" value="1free"> <label for="Event3">Shot 1st Free Throw</label>
+            <input type="radio" id="2FreeThrow" name="event" value="2free"> <label for="Event4">Shot 2nd Free Throw</label><br>
+            <input type="radio" id="Assist" name="event" value="Assist"> <label for="Event5">Assist</label><br>
+            <input type="radio" id="FastBreak" name="event" value="OffenceFastBreak"> <label for="Event6">Fast break</label><br>
+            <input type="radio" id="offRebound" name="event" value="OffenceRebound"> <label for="Event10">Rebound</label><br> 
+
+            <label for="Group1">Defence</label><br>
+            <input type="radio" id="Steal" name="event" value="Steal"> <label for="Event7">Steal</label><br> 
+            <input type="radio" id="TurnOver" name="event" value="TurnOver"> <label for="Event8">Turn over</label><br> 
+            <input type="radio" id="BlockedShot" name="event" value="BlockedShot"> <label for="Event9">Blocked shot</label><br> 
+            <input type="radio" id="defRebound" name="event" value="DefenceRebound"> <label for="Event10">Rebound</label><br> 
+
+            <label for="Group1">Fouls</label><br>
+            <input type="radio" id="OffenceFoul" name="event" value="OffenceFoul"> <label for="Event11">Offence foul</label><br> 
+            <input type="radio" id="DefenceFoul" name="event" value="DefenceFoul"> <label for="Event12">Defence foul</label><br>
+            <input type="submit" value="Submit"  class="cKind">
+            </form>
+
+        </div>
+        <div class="nextTo">
+            <form action="/court/statEvent" method="post">
+                <input type="hidden" id="Kind" name="statKind" value="playerUpdate">
+                <label for="Group2"><h3>Player selection</h3></label>
+                <table>
+                    <tr>
+                        <th>On</th>
+                        <th>Number</th>
+                        <th>Name</th>
+                    </tr>
+                    <% for (let i = 0; i < tRefs.length; i++) { %>
+                            <tr>
+                            <td> <input type="checkbox" id="players" name="players" = value="<%= tRefs[i] %>"
+                                    <% if (pRefs.includes(tRefs[i].toString ()) === true){ %>
+                                        checked
+                                    <% } %>
+                            ></td>
+                            <td> <%= numbers[tRefs[i]] %></td>
+                            <td> <%= names[tRefs[i]] %></td>
+                        </tr>
+                    <% }; %>
+                </table>
+                <br>
+                <input type="Submit" value="Player update" class="cKind">            
+            </form>
+        </div>
+        <div class="nextTo">
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="TechnicalFoul">
+            <label for="TechFoul">Technical foul</label><br>            
+            <select name="Player" id="Player">
+
+                <% tRefs.forEach ( ref => { %>
+                    <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
+                <% }) %>
+                <option value="Coach">Coach</option>
+            </select>
+            <br>
+            <textarea id="TFComment" name="TFComment" rows="2" cols="25"></textarea><br>
+            <input type="submit" value="Submit" class="cKind"><br><br>            
+            </form>
+            <form action="/court/statEvent" method="post">
+            <label for="FFComment">Comment</label><br>            
+            <input type="hidden" id="Kind" name="statKind" value="FreeFormComment">
+            <textarea id="FreeFormComment" name="Comment" rows="2" cols="25"></textarea><br>
+            <input type="submit" value="Submit" class="cKind"><br><br>            
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="RefStopsGame">        
+            <input type="submit" value="Ref stops game" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="RefRestartsGame">        
+            <input type="submit" value="Ref restarts game" class="cKind"><br><br>
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="OurTimeOut">        
+            <input type="submit" value="Our time out" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="OpTimeOut">        
+            <input type="submit" value="Op time out" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="TimeOutEnds">        
+            <input type="submit" value="Time out ends" class="cKind">
+            </form>
+        </div>
+        <div class="nextTo">
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="gameStart" name="statKind" value="gameStart">        
+            <input type="submit" id = "gameStartButton" value="Game start" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="quarter1End">        
+            <input type="submit" value="Quarter 1 End" class="cKind"><br><br>
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="quarter2Start">        
+            <input type="submit" value="Quarter 2 Start" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="quarter2End">        
+            <input type="submit" value="Quarter 2 End" class="cKind"><br><br>
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="quarter3Start">        
+            <input type="submit" value="Quarter 3 Start" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="quarter3End">        
+            <input type="submit" value="Quarter 3 End" class="cKind"><br><br>
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="quarter4Start">        
+            <input type="submit" value="Quarter 4 Start" class="cKind">
+            </form>
+            <form action="/court/statEvent" method="post">
+            <input type="hidden" id="Kind" name="statKind" value="gameEnd">        
+            <input type="submit" value="Game End" class="cKind">
+            </form>     
+        </div>
+    </div>
+</body>
+</html>

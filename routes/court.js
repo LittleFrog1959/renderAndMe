@@ -7,7 +7,7 @@ const router = express.Router()
 router.use(logger)
 
 router.get("/", (req, res) => {
-  res.render("court/courtMain", {numbers: sv.squadNumbers, names:sv.squadNames, tRefs:sv.teamRefs, pRefs:sv.playerRefs, msg:JSON.stringify (msgHistory)})
+  res.render("court/courtMain", {numbers: sv.squadNumbers, names:sv.squadNames, tRefs:sv.teamRefs, pRefs:sv.playerRefs, gStart:sv.gameStartedAt,cQtr:sv.currentQuarter, qtrStart:sv.quarterStart, qtrDuration:sv.qtrDuration, gEnd:sv.gameEndedAt, msg:JSON.stringify (msgHistory)})
 })
 
 // Receive a game stat event
@@ -33,31 +33,68 @@ router.post("/statEvent", (req, res) => {
     }
 
     if (req.body.statKind === 'gameStart') {
-        "gameStartedAt"
-//        "currentQuarter"
-//        "quarterTime"
-//        "gameEndedAt"
+        // Update the shared variable so we can send it back to the client when the page is re-painted
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'quarter1End') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'quarter2Start') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'quarter2End') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'quarter3Start') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'quarter3End') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'quarter4Start') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     if (req.body.statKind === 'gameEnd') {
+        sv.gameStartedAt = req.body.gameStartName
+        sv.currentQuarter = req.body.cQtrName
+        sv.quarterStart = req.body.qtrStartName
+        sv.qtrDuration = req.body.qtrDurationName
+        sv.gameEndedAt = req.body.gameEndName
     }
     
     // Save the event in a shared variable for future development

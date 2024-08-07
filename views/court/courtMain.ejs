@@ -7,229 +7,596 @@
   <meta name="viewport" content="width=720", initial-scale=1.0">
   <title>Gather stats</title>
   <link rel="stylesheet" href="/css/styles.css">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
+
     <script>
         window.onload = function () {
             var canvas = document.getElementById('courtCanvas');
             var context = canvas.getContext('2d');
             var image = new Image();
+            image.src = './images/bblCourt.png';
             image.onload = function() {
-                context.drawImage(image, 0,0, 720, 443);
+                context.drawImage(image, 0, 0);
             };
-            image.src = "./images/bblCourt.png";
         
-            canvas.addEventListener ('mousedown', function (e) {                
-                x = e.pageX - e.srcElement.offsetLeft;
-                y = e.pageY - e.srcElement.offsetTop;
-                document.getElementsByName('xPosition')[0].value = x;
-                document.getElementsByName('yPosition')[0].value = y;
+            canvas.addEventListener ('mousedown', function (e) {
+                // Redraw the whole image (!) to erase the old dot
+                context.drawImage(image, 0, 0);
+                // Express the X & Y positions as a percentage of the canvas width
+                // with the ogigin offsets removed
+                xPercent = (e.clientX - e.srcElement.offsetLeft) / e.srcElement.clientWidth
+                yPercent = (e.clientY - e.srcElement.offsetTop) / e.srcElement.clientHeight
+                // Now scale by the current size of the canvas
+                x = xPercent * e.srcElement.width;
+                y = yPercent * e.srcElement.height;
+
+                // Tell the rest of the program so the position can be sent to the back end
+                document.getElementsByName('xPosition')[0].value = xPercent;
+                document.getElementsByName('yPosition')[0].value = yPercent;
+
+                // Plot that naughty dot on the screen
                 context.beginPath ()
-                context.arc (x, y, 2, 0, 6)
+                context.arc (x, y, 2, 0, Math.PI * 2)
                 context.fillStyle = "red";
                 context.fill();
-                context.lineWidth = 4;
+                context.lineWidth = 2;
                 context.strokeStyle = "blue";
                 context.stroke ()
-            })    
+            }) 
+            // Set up a call every 500mSec which refreshes the various on-screen times etc...
+            setInterval (refreshTimes, 500)
+            
             // Expand the supplied JSON object and plant it in the textarea
             document.getElementById ("eventDump").value = '<%-msg%>'
+            // Refresh the hidden values used by HTML POST
+            loadHiddenFieldNames ('gameStartName', '<%= gStart %>')
+            loadHiddenFieldNames ('cQtrName', '<%= cQtr %>')
+            loadHiddenFieldNames ('qtrStartName', '<%= qtrStart %>')
+            loadHiddenFieldNames ('gameEndName', '<%= gEnd %>')
+                        
+            document.getElementById ("gameStartButton").onclick = function () {
+                // Take a snapshot of the current time
+                var rightNow = new Date ().toLocaleString ('en-GB')
+                
+                // Load the on-screen text boxes
+                document.getElementById ("gameStartedAt").value = rightNow
+                document.getElementById ("currentQuarter").value = "1st Quarter started"
+                document.getElementById ("quarterStarted").value = rightNow
+                document.getElementById ("quarterDuration").value = "0"
+                document.getElementById ("gameEndedAt").value = ""
+                // Load up the element included in messages to the server
+                loadHiddenFieldNames ('wallClockName', rightNow)
+                loadHiddenFieldNames ("gameStartName", rightNow)
+                loadHiddenFieldNames ('cQtrName', '1st Quarter started')
+                loadHiddenFieldNames ('qtrStartName', rightNow)
+                loadHiddenFieldNames ('gameEndName', '')
+                // Get the current duration of the quarter from the screen
+                // for sending to the server
+                var qD = document.getElementById ('quarterDuration').value
+                loadHiddenFieldNames ('qtrDurationName', qD)
+            }
+
+            document.getElementById ("qtr1EndButton").onclick = function () {
+                // Load the on-screen message
+                document.getElementById ("currentQuarter").value = "1st Quarter ended"
+                // Load up the element included in messages to the server
+                loadHiddenFieldNames ('cQtrName', '1st Quarter ended')
+            }   
+
+            document.getElementById ("qtr2StartButton").onclick = function () {
+                 // Take a snapshot of the current time
+                var rightNow = new Date ().toLocaleString ('en-GB')
+                // Load the on-screen message
+                document.getElementById ("currentQuarter").value = "2nd Quarter started"
+                document.getElementById ("quarterStarted").value = rightNow
+                document.getElementById ("quarterDuration").value = "0"
+                // Load up the elements included in messages to the server
+                loadHiddenFieldNames ('cQtrName', '2nd Quarter started')
+                loadHiddenFieldNames ('qtrStartName', rightNow)
+                // Get the current duration of the quarter from the screen
+                // for sending to the server
+                var qD = document.getElementById ('quarterDuration').value
+                loadHiddenFieldNames ('qtrDurationName', qD)
+            }   
+
+            document.getElementById ("qtr2EndButton").onclick = function () {
+                // Load the on-screen message
+                document.getElementById ("currentQuarter").value = "2nd Quarter ended"
+                // Load up the element included in messages to the server
+                loadHiddenFieldNames ('cQtrName', '2nd Quarter ended')
+            }   
+
+            document.getElementById ("qtr3StartButton").onclick = function () {
+                 // Take a snapshot of the current time
+                var rightNow = new Date ().toLocaleString ('en-GB')
+                // Load the on-screen message
+                document.getElementById ("currentQuarter").value = "3rd Quarter started"
+                document.getElementById ("quarterStarted").value = rightNow
+                document.getElementById ("quarterDuration").value = "0"
+                // Load up the elements included in messages to the server
+                loadHiddenFieldNames ('cQtrName', '3rd Quarter started')
+                loadHiddenFieldNames ('qtrStartName', rightNow)
+                // Get the current duration of the quarter from the screen
+                // for sending to the server
+                var qD = document.getElementById ('quarterDuration').value
+                loadHiddenFieldNames ('qtrDurationName', qD)
+            }
             
-            document.getElementById ("gameStartButton").onclick = function() {
-                document.getElementById ("gameStartedAt").value = "hello"
-            };
+            document.getElementById ("qtr3EndButton").onclick = function () {
+                // Load the on-screen message
+                document.getElementById ("currentQuarter").value = "3rd Quarter ended"
+                // Load up the element included in messages to the server
+                loadHiddenFieldNames ('cQtrName', '3rd Quarter ended')
+            }   
+
+            document.getElementById ("qtr4StartButton").onclick = function () {
+                 // Take a snapshot of the current time
+                var rightNow = new Date ().toLocaleString ('en-GB')
+                // Load the on-screen message
+                document.getElementById ("currentQuarter").value = "4th Quarter started"
+                document.getElementById ("quarterStarted").value = rightNow
+                document.getElementById ("quarterDuration").value = "0"
+                // Load up the elements included in messages to the server
+                loadHiddenFieldNames ('cQtrName', '4th Quarter started')
+                loadHiddenFieldNames ('qtrStartName', rightNow)
+                // Get the current duration of the quarter from the screen
+                // for sending to the server
+                var qD = document.getElementById ('quarterDuration').value
+                loadHiddenFieldNames ('qtrDurationName', qD)
+            }
+            
+            document.getElementById ("gameEndButton").onclick = function () {
+                // Take a snapshot of the current time
+                var rightNow = new Date ().toLocaleString ('en-GB')
+                
+                // Load the on-screen text boxes
+                document.getElementById ("currentQuarter").value = "Game ended"
+                document.getElementById ("gameEndedAt").value = rightNow
+                // Load up the element included in messages to the server
+                loadHiddenFieldNames ('cQtrName', 'Game ended')
+                loadHiddenFieldNames ('gameEndName', rightNow)
+                // Get the current duration of the quarter from the screen
+                // for sending to the server
+                var qD = document.getElementById ('quarterDuration').value
+                loadHiddenFieldNames ('qtrDurationName', qD)
+            }
         }
+        
+        function loadHiddenFieldNames (fieldName, fieldValue) {
+            let nameList = document.getElementsByName (fieldName);
+            nameList.forEach ((element) => {
+                element.value = fieldValue
+            });
+        }
+        function refreshTimes () {
+            // Refresh the various on-screen times
+            // Wall clock date/time
+            var rightNow = new Date ().toLocaleString ('en-GB')            
+            document.getElementById ('wallClockTime').value = rightNow 
+            // Send the current wall clock time to all the HTML POST fields
+            loadHiddenFieldNames ('wallClockName', rightNow)
+            // Update the duration of the current quarter if there's a valid
+            // quarter start time AND the quarter is in play (in other words,
+            // not "ended")
+            let start = document.getElementById ("quarterStarted").value
+            let quarterState = document.getElementById ("currentQuarter").value
+            if (quarterState.includes ('started') === true) {
+                if (start.length === 20) {
+                    let dur = getSeconds (rightNow) - getSeconds (start)
+                    document.getElementById ("quarterDuration").value = dur
+                    loadHiddenFieldNames ('qtrDurationName', dur)
+                } else {
+                    let dur = ""
+                    // Clear out the duration because start time is not valid
+                    document.getElementById ("quarterDuration").value = ""
+                    loadHiddenFieldNames ('qtrDurationName', "")
+
+                }
+            }
+        }
+        function getSeconds (localeString) {
+            // Long handed way of getting seconds from supplied date/time
+            let h = parseInt (localeString.slice (12, 14)) * 3600
+            let m = parseInt (localeString.slice (15, 17)) * 60
+            let s = parseInt (localeString.slice (-2))
+            return (h + m + s)
+        }        
     </script>
-    <h1>Gather game stats</h1>
-    <div>
-        <div class="nextTo">
-            <canvas id="courtCanvas" width="720" height="443"></canvas>
+    
+    <div class="container">
+        <div class="row">
+            <h1>Gather game stats</h1>
         </div>
-        <div class="nextTo">
-        </div>
-        <div class="nextTo">
-            <textarea id="eventDump" name="Comment" rows="18" cols="65">????</textarea>
-            <br>   
-            <br>
-            <br>     
-            <br>                 
-            <form action="/squad">
-                <input type="submit" value="Change team" class="cNavigation">
-            </form>
-            <br>
-            <form action="/eventViewer">
-                <input type="submit" value="Event Viewer" class="cNavigation">
-            </form>
-            <br>
-            <form action="/">
-                <input type="submit" value="Log out" class="cNavigation">
-            </form>
-        </div>       
-        <div class="nextTo">
-            <label for="Player">Game started at</label>
-            <br>
-            <input type="gameStartedAt" id="gameStartedAt" name="gameStartedAt" disabled>
-            <br>
-            <label for="Player" id="currentQuarter">Current quarter</label>
-            <br>
-            <input type="currentQuarter" id="currentQuarter" name="currentQuarter" disabled>
-            <br>
-            <label for="Player" id="currentQuarter">Quarter duration</label>
-            <br>
-            <input type="quarterTime" id="quarterTime" name="quarterTime" disabled>
-            <br>
-            <label for="Player" id="currentQuarter">Game ended at</label>
-            <br>
-            <input type="gameEndedAt" id="gameEndedAt" name="gameEndedAt" disabled>
-            <br>        
-        </div>
-    </div>
-    <div>
-        <div class="nextTo">
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="gameEvent">
-
-            <input type="hidden" id="Xposition" name="xPosition"><br>
-            <input type="hidden" id="Yposition" name="yPosition"><br>
-            <label for="Player">Player:</label>
-            <select name="Player" id="Player">
-                <% pRefs.forEach ( ref => { %>
-                    <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
-                <% }) %>
-            </select>
-            <br>
-            
-            <label for="Group1">Score</label><br>
-            <input type="radio" id="score2Point" name="event" value="Score2pt"> <label for="Event1">Score 2pt</label>            
-            <input type="radio" id="score3Point" name="event" value="Score3pt"> <label for="Event2">Score 3pt</label><br>
-            <input type="radio" id="score1Free" name="event" value="Score1free"> <label for="Event3">Score 1st Free Throw</label>
-            <input type="radio" id="score2Free" name="event" value="Score2free"> <label for="Event4">Score 2nd Free Throw</label><br>
-
-            <label for="Group1">Offence</label><br>
-            <input type="radio" id="Shot2Point" name="event" value="Shot2pt"> <label for="Event1">Shot 2pt</label>            
-            <input type="radio" id="Shot3Point" name="event" value="Shot3pt"> <label for="Event2">Shot 3pt</label><br>
-            <input type="radio" id="1FreeThrow" name="event" value="1free"> <label for="Event3">Shot 1st Free Throw</label>
-            <input type="radio" id="2FreeThrow" name="event" value="2free"> <label for="Event4">Shot 2nd Free Throw</label><br>
-            <input type="radio" id="Assist" name="event" value="Assist"> <label for="Event5">Assist</label><br>
-            <input type="radio" id="FastBreak" name="event" value="OffenceFastBreak"> <label for="Event6">Fast break</label><br>
-            <input type="radio" id="offRebound" name="event" value="OffenceRebound"> <label for="Event10">Rebound</label><br> 
-
-            <label for="Group1">Defence</label><br>
-            <input type="radio" id="Steal" name="event" value="Steal"> <label for="Event7">Steal</label><br> 
-            <input type="radio" id="TurnOver" name="event" value="TurnOver"> <label for="Event8">Turn over</label><br> 
-            <input type="radio" id="BlockedShot" name="event" value="BlockedShot"> <label for="Event9">Blocked shot</label><br> 
-            <input type="radio" id="defRebound" name="event" value="DefenceRebound"> <label for="Event10">Rebound</label><br> 
-
-            <label for="Group1">Fouls</label><br>
-            <input type="radio" id="OffenceFoul" name="event" value="OffenceFoul"> <label for="Event11">Offence foul</label><br> 
-            <input type="radio" id="DefenceFoul" name="event" value="DefenceFoul"> <label for="Event12">Defence foul</label><br>
-            <input type="submit" value="Submit"  class="cKind">
-            </form>
-
-        </div>
-        <div class="nextTo">
-            <form action="/court/statEvent" method="post">
-                <input type="hidden" id="Kind" name="statKind" value="playerUpdate">
-                <label for="Group2"><h3>Player selection</h3></label>
-                <table>
-                    <tr>
-                        <th>On</th>
-                        <th>Number</th>
-                        <th>Name</th>
-                    </tr>
-                    <% for (let i = 0; i < tRefs.length; i++) { %>
-                            <tr>
-                            <td> <input type="checkbox" id="players" name="players" = value="<%= tRefs[i] %>"
-                                    <% if (pRefs.includes(tRefs[i].toString ()) === true){ %>
-                                        checked
-                                    <% } %>
-                            ></td>
-                            <td> <%= numbers[tRefs[i]] %></td>
-                            <td> <%= names[tRefs[i]] %></td>
-                        </tr>
-                    <% }; %>
-                </table>
+        <div class="row">
+            <div class="col-10">
+                <canvas id="courtCanvas" class="img-fluid" width="1440" height="887"></canvas>
+            </div>
+            <div class="col-2">
+                <label for="Player">Time</label>
                 <br>
-                <input type="Submit" value="Player update" class="cKind">            
-            </form>
+                <input type="wallClockTime" id="wallClockTime" name="wallClockTime" value="" disabled>
+                <br>
+                <label for="Player">Game started at</label>
+                <br>
+                <input type="gameStartedAt" id="gameStartedAt" name="gameStartedAt" value="<%= gStart %>" disabled>
+                <br>
+                <label for="Player">Current quarter</label>
+                <br>
+                <input type="currentQuarter" id="currentQuarter" name="currentQuarter" value="<%= cQtr %>" disabled>
+                <br>
+                <label for="Player">Quarter started at</label>
+                <br>
+                <input type="quarterStarted" id="quarterStarted" name="quarterStarted" value="<%= qtrStart %>" disabled>
+                <br>
+                <label for="Player">Quarter duration</label>
+                <br>
+                <input type="quarterTime" id="quarterDuration" name="quarterDuration" value="<%= qtrDuration %>" disabled>
+                <br>
+                <label for="Player">Game ended at</label>
+                <br>
+                <input type="gameEndedAt" id="gameEndedAt" name="gameEndedAt" value="<%= gEnd %>" disabled>
+                <br>
+            </div>
         </div>
-        <div class="nextTo">
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="TechnicalFoul">
-            <label for="TechFoul">Technical foul</label><br>            
-            <select name="Player" id="Player">
+        <div class="row">
+            <div class="col-12">
+                <nav>
+                    <div class="nav nav-tabs" id="nav-GE" role="tablist">
+                        <button class="nav-link active" id="tab-game-events" data-bs-toggle="tab" data-bs-target="#content-game-events" type="button" role="tab" aria-controls="nav-game-events" aria-selected="true">
+                        Game events
+                        </button>
+                        <button class="nav-link" id="tab-players" data-bs-toggle="tab" data-bs-target="#content-players" type="button" role="tab" aria-controls="nav-players" aria-selected="false">
+                        Players
+                        </button>
+                        <button class="nav-link" id="tab-ref-events" data-bs-toggle="tab" data-bs-target="#content-ref-events" type="button" role="tab" aria-controls="nav-ref-events" aria-selected="false">
+                        Ref events
+                        </button>
+                        <button class="nav-link" id="tab-viewer" data-bs-toggle="tab" data-bs-target="#content-viewer" type="button" role="tab" aria-controls="nav-viewer" aria-selected="false">
+                        Viewer
+                        </button>
+                        <button class="nav-link" id="tab-navigation" data-bs-toggle="tab" data-bs-target="#content-navigation" type="button" role="tab" aria-controls="nav-navigation" aria-selected="false">
+                        Navigation
+                        </button>
+                    </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane show active p-3" id="content-game-events" role="tabpane1" aria-labelledby="tab-game-events">
+                        <!-- Game events -->
 
-                <% tRefs.forEach ( ref => { %>
-                    <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
-                <% }) %>
-                <option value="Coach">Coach</option>
-            </select>
-            <br>
-            <textarea id="TFComment" name="TFComment" rows="2" cols="25"></textarea><br>
-            <input type="submit" value="Submit" class="cKind"><br><br>            
-            </form>
-            <form action="/court/statEvent" method="post">
-            <label for="FFComment">Comment</label><br>            
-            <input type="hidden" id="Kind" name="statKind" value="FreeFormComment">
-            <textarea id="FreeFormComment" name="Comment" rows="2" cols="25"></textarea><br>
-            <input type="submit" value="Submit" class="cKind"><br><br>            
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="RefStopsGame">        
-            <input type="submit" value="Ref stops game" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="RefRestartsGame">        
-            <input type="submit" value="Ref restarts game" class="cKind"><br><br>
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="OurTimeOut">        
-            <input type="submit" value="Our time out" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="OpTimeOut">        
-            <input type="submit" value="Op time out" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="TimeOutEnds">        
-            <input type="submit" value="Time out ends" class="cKind">
-            </form>
-        </div>
-        <div class="nextTo">
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="gameStart" name="statKind" value="gameStart">        
-            <input type="submit" id = "gameStartButton" value="Game start" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="quarter1End">        
-            <input type="submit" value="Quarter 1 End" class="cKind"><br><br>
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="quarter2Start">        
-            <input type="submit" value="Quarter 2 Start" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="quarter2End">        
-            <input type="submit" value="Quarter 2 End" class="cKind"><br><br>
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="quarter3Start">        
-            <input type="submit" value="Quarter 3 Start" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="quarter3End">        
-            <input type="submit" value="Quarter 3 End" class="cKind"><br><br>
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="quarter4Start">        
-            <input type="submit" value="Quarter 4 Start" class="cKind">
-            </form>
-            <form action="/court/statEvent" method="post">
-            <input type="hidden" id="Kind" name="statKind" value="gameEnd">        
-            <input type="submit" value="Game End" class="cKind">
-            </form>     
+                        <form action="/court/statEvent" method="post">
+                            <input type="hidden" id="Kind" name="statKind" value="gameEvent">
+                            <input type="hidden" id="gameEventWall" name="wallClockName" value="">
+                            <input type="hidden" id="gameEventGameStart" name="gameStartName" value="">
+                            <input type="hidden" id="gameEventCurrentQuarter" name="cQtrName" value="">
+                            <input type="hidden" id="gameEventQuarterStart" name="qtrStartName" value="">
+                            <input type="hidden" id="gameEventDuration" name="qtrDurationName" value="">                                    
+                            <input type="hidden" id="gameEventGameEnd" name="gameEndName" value="">
+                            <input type="hidden" id="Xposition" name="xPosition">
+                            <input type="hidden" id="Yposition" name="yPosition">
+
+                            <div class="form-check form-check-inline">
+                                <% pRefs.forEach ( ref => { %>
+                                    <input class="btn-check" type="radio" name="player" id="inlineRadioButton<%= ref %>" autocomplete="off" value="<%= numbers[ref]%> <%= names[ref]%>">
+                                    <label class="btn btn-outline-dark" for="inlineRadioButton<%= ref %>"><%= numbers[ref]%> <%= names[ref]%></label>
+                                <% }) %>
+                            </div>
+                            <br> <br>
+                            <div class="row">
+                                <div class="col-6">
+                                    <h4>Score</h4>
+                                    <input type="radio" class="btn-check" name="event" id="Score2pt" autocomplete="off" value="score2pt"> <label class="btn btn-outline-dark" for="Score2pt">Score 2pt</label>
+                                    <input type="radio" class="btn-check" name="event" id="Score3pt" autocomplete="off" value="score3pt"> <label class="btn btn-outline-dark" for="Score3pt">Score 3pt</label>
+                                    <input type="radio" class="btn-check" name="event" id="Score1fr" autocomplete="off" value="score1fr"> <label class="btn btn-outline-dark" for="Score1fr">Score 1st free throw</label>
+                                    <input type="radio" class="btn-check" name="event" id="Score2fr" autocomplete="off" value="score2fr"> <label class="btn btn-outline-dark" for="Score2fr">Score 2nd free throw</label>
+                                    <br> <br>
+
+                                    <h4>Offence</h4>
+                                    <input type="radio" class="btn-check" name="event" id="Shot2pt" autocomplete="off" value="shot2pt"> <label class="btn btn-outline-dark" for="Shot2pt">Shot 2pt</label>
+                                    <input type="radio" class="btn-check" name="event" id="Shot3pt" autocomplete="off" value="shot3pt"> <label class="btn btn-outline-dark" for="Shot3pt">Shot 2pt</label>
+                                    <input type="radio" class="btn-check" name="event" id="1Free" autocomplete="off" value="1free"> <label class="btn btn-outline-dark" for="1Free">Shot 1st free throw</label>
+                                    <input type="radio" class="btn-check" name="event" id="2Free" autocomplete="off" value="2Free"> <label class="btn btn-outline-dark" for="2Free">Shot 2nd free throw</label>
+                                    <br> <br>
+                                    <input type="radio" class="btn-check" name="event" id="Assist" autocomplete="off" value="assist"> <label class="btn btn-outline-dark" for="Assist">Assist</label>
+                                    <input type="radio" class="btn-check" name="event" id="OffenceFB" autocomplete="off" value="offenceFB"> <label class="btn btn-outline-dark" for="OffenceFB">Offence fast break</label>
+                                    <input type="radio" class="btn-check" name="event" id="OffRebound" autocomplete="off" value="offenceRebound"> <label class="btn btn-outline-dark" for="OffRebound">Offence rebound</label>
+                                </div>
+                                <div class="col-6">
+                                    <h4>Defence</h4>
+                                    <input type="radio" class="btn-check" name="event" id="Steal" autocomplete="off" value="steal"> <label class="btn btn-outline-dark" for="Steal">Steal</label>
+                                    <input type="radio" class="btn-check" name="event" id="TurnOver" autocomplete="off" value="turnOver"> <label class="btn btn-outline-dark" for="TurnOver">Turnover</label>
+                                    <input type="radio" class="btn-check" name="event" id="BlockedShot" autocomplete="off" value="blockedShot"> <label class="btn btn-outline-dark" for="BlockedShot">Blocked shot</label>
+                                    <input type="radio" class="btn-check" name="event" id="DefRebound" autocomplete="off" value="defRebound"> <label class="btn btn-outline-dark" for="DefRebound">Defence rebound</label>
+                                    <br> <br>
+                                    
+                                    <h4>Fouls</h4>
+                                    <input type="radio" class="btn-check" name="event" id="OffFoul" autocomplete="off" value="offFoul"> <label class="btn btn-outline-dark" for="OffFoul">Offence foul</label>
+                                    <input type="radio" class="btn-check" name="event" id="DefFoul" autocomplete="off" value="defFoul"> <label class="btn btn-outline-dark" for="OffFoul">Defence foul</label>
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row col-6 mx-auto">
+                                <button type="submit" id="gameEventSubmit" value="Submit"  class="btn btn-primary btn-lg cKind">Submit</button>
+                            </div>
+                        </form>
+
+                        
+                    </div>
+                    <div class="tab-pane  p-3" id="content-players" role="tabpane1" aria-labelledby="tab-palyers">
+                        <!-- Players -->
+                        <form action="/court/statEvent" method="post">
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="hidden" id="Kind" name="statKind" value="playerUpdate">
+                                    <input type="hidden" id="playerUpdateWall" name="wallClockName" value="">
+                                    <input type="hidden" id="playerUpdateGameStart" name="gameStartName" value="">
+                                    <input type="hidden" id="playerUpdateCurrentQuarter" name="cQtrName" value="">
+                                    <input type="hidden" id="playerUpdateQuarterStart" name="qtrStartName" value="">
+                                    <input type="hidden" id="playerUpdateDuration" name="qtrDurationName" value="">                                    
+                                    <input type="hidden" id="playerUpdateGameEnd" name="gameEndName" value="">
+                                    <table class="table table-borderless table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>On</th>
+                                                <th>Number</th>
+                                                <th>Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for (let i = 0; i < tRefs.length; i++) { %>
+                                                    <tr>
+                                                    <td> <input class="form-check-input" type="checkbox" id="players" name="players" = value="<%= tRefs[i] %>"
+                                                            <% if (pRefs.includes(tRefs[i].toString ()) === true){ %>
+                                                                checked
+                                                            <% } %>
+                                                    ></td>
+                                                    <td> <%= numbers[tRefs[i]] %></td>
+                                                    <td> <%= names[tRefs[i]] %></td>
+                                                </tr>
+                                            <% }; %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-6">
+                                    <button type="submit" value="Player update"  class="btn btn-primary btn-lg cKind">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane p-3" id="content-ref-events" role="tabpane1" aria-labelledby="tab-ref-events">
+                        <!-- Ref events -->
+                        <div class="row">
+                            <div class="col-4">
+                                <form action="/court/statEvent" method="post">
+                                    <input type="hidden" id="Kind" name="statKind" value="TechnicalFoul">
+                                    <input type="hidden" id="tFoulWall" name="wallClockName" value="">
+                                    <input type="hidden" id="tFoulGameStart" name="gameStartName" value="">
+                                    <input type="hidden" id="tFoulCurrentQuarter" name="cQtrName" value="">
+                                    <input type="hidden" id="tFoulQuarterStart" name="qtrStartName" value="">
+                                    <input type="hidden" id="tFoulDuration" name="qtrDurationName" value="">                                    
+                                    <input type="hidden" id="tFoulGameEnd" name="gameEndName" value="">
+                                    <h4>Technical foul</h4><br>
+                                    
+                                    <select class="form-select" name="Player" id="Player">
+                                        <% tRefs.forEach ( ref => { %>
+                                            <option value="<%= numbers[ref] %> <%= names[ref] %> "> <%= numbers[ref]%> <%= names[ref] %></option>
+                                        <% }) %>
+                                        <option value="Coach">Coach</option>
+                                    </select>
+
+                                    <br>
+                                    <textarea class="form-control" id="TFComment" name="TFComment"></textarea><br>
+                                    <button type="submit" value="Submit"  class="btn btn-primary cKind">Submit</button>                                    
+                                </form>
+
+                                <form action="/court/statEvent" method="post">                                
+                                    <input type="hidden" id="Kind" name="statKind" value="FreeFormComment">
+                                    <input type="hidden" id="fFCommentWall" name="wallClockName" value="">
+                                    <input type="hidden" id="fFCommentGameStart" name="gameStartName" value="">
+                                    <input type="hidden" id="fFCommentCurrentQuarter" name="cQtrName" value="">
+                                    <input type="hidden" id="fFCommentQuarterStart" name="qtrStartName" value="">
+                                    <input type="hidden" id="fFCommentDuration" name="qtrDurationName" value="">                                    
+                                    <input type="hidden" id="fFCommentGameEnd" name="gameEndName" value="">
+                                    <h4>Comment<h4>
+
+                                    <textarea class="form-control" id="FreeFormComment" name="Comment"> </textarea><br>
+                                    <button type="submit" value="Submit"  class="btn btn-primary cKind">Submit</button>                                    
+                                </form>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="d-grid gap-2">
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="RefStopsGame">        
+                                        <input type="hidden" id="refSGWall" name="wallClockName" value="">
+                                        <input type="hidden" id="refSGGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="refSGCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="refSGQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="refSGDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="refSGGameEnd" name="gameEndName" value="">
+                                    <button type="submit" class="btn btn-primary cKind">Ref stops game</button>                                    
+                                    </form>
+
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="RefRestartsGame">        
+                                        <input type="hidden" id="refRGWall" name="wallClockName" value="">
+                                        <input type="hidden" id="refRGGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="refRGCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="refRGQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="refRGDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="refRGGameEnd" name="gameEndName" value="">
+                                        <button type="submit" class="btn btn-primary cKind">Ref restarts game</button>                                    
+                                    </form>
+                                </div>
+                                <br>
+                                <br>
+                                <div class="d-grid gap-2">
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="OurTimeOut">        
+                                        <input type="hidden" id="ourTOWall" name="wallClockName" value="">
+                                        <input type="hidden" id="ourTOGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="ourTOCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="ourTOQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="ourTODuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="ourTOGameEnd" name="gameEndName" value="">
+                                        <button type="submit" class="btn btn-primary cKind">Our timeout</button>                                    
+                                    </form>
+                                    
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="OpTimeOut">        
+                                        <input type="hidden" id="opTOWall" name="wallClockName" value="">
+                                        <input type="hidden" id="opTOGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="opTOCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="opTOQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="opTODuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="opTOGameEnd" name="gameEndName" value="">
+                                        <button type="submit" class="btn btn-primary cKind">Op timeout</button>                                    
+                                    </form>
+                                    
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="toEndKind" name="statKind" value="TimeOutEnds">        
+                                        <input type="hidden" id="toEndWall" name="wallClockName" value="">
+                                        <input type="hidden" id="toEndGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="toEndCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="toEndQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="toEndDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="toEndGameEnd" name="gameEndName" value="">
+                                        <button type="submit" class="btn btn-primary cKind">Timeout end</button>                                    
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="col-4">
+                                <div class="d-grid gap-2">
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="gameStart" name="statKind" value="gameStart">
+                                        <input type="hidden" id="gSWall" name="wallClockName" value="">
+                                        <input type="hidden" id="gSGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="gSCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="gSQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="gSDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="gSGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="gameStartButton" class="btn btn-primary cKind">Game start</button>                                    
+                                    </form>
+                                    
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="quarter1End">        
+                                        <input type="hidden" id="q1EWall" name="wallClockName" value="">
+                                        <input type="hidden" id="q1EGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="q1ECurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="q1EQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="q1EDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="q1EGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="qtr1EndButton" class="btn btn-primary cKind">Qtr 1 end</button>                                    
+                                    </form>
+                                </div>
+                                <br>
+                                <div class="d-grid gap-2">                                
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="quarter2Start">        
+                                        <input type="hidden" id="q2SWall" name="wallClockName" value="">
+                                        <input type="hidden" id="q2SGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="q2SCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="q2SQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="q2SDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="q2SGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="qtr2StartButton" class="btn btn-primary cKind">Qtr 2 start</button>                                    
+                                   </form>
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="quarter2End">        
+                                        <input type="hidden" id="q2EWall" name="wallClockName" value="">
+                                        <input type="hidden" id="q2EGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="q2ECurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="q2EQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="q2EDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="q2EGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="qtr2EndButton" class="btn btn-primary cKind">Qtr 2 end</button>                                    
+                                    </form>
+                                </div>
+                                <br>
+                                <div class="d-grid gap-2">                                
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="quarter3Start">        
+                                        <input type="hidden" id="q3SWall" name="wallClockName" value="">
+                                        <input type="hidden" id="q3SGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="q3SCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="q3SQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="q3StDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="q3SGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="qtr3StartButton" class="btn btn-primary cKind">Qtr 3 start</button>                                    
+                                    </form>
+                                    
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="quarter3End">        
+                                        <input type="hidden" id="q3EWall" name="wallClockName" value="">
+                                        <input type="hidden" id="q3EGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="q3ECurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="q3EQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="q3EDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="q3EGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="qtr3EndButton" class="btn btn-primary cKind">Qtr 3 end</button>                                    
+                                    </form>
+                                </div>
+                                <br>
+                                <div class="d-grid gap-2">                                
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="quarter4Start">        
+                                        <input type="hidden" id="q4SWall" name="wallClockName" value="">
+                                        <input type="hidden" id="q4SGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="q4SCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="q4SQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="q4SDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="q4SGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="qtr4StartButton" class="btn btn-primary cKind">Qtr 4 start</button>                                    
+                                    </form>
+                                    
+                                    <form action="/court/statEvent" method="post">
+                                        <input type="hidden" id="Kind" name="statKind" value="gameEnd">        
+                                        <input type="hidden" id="gEndWall" name="wallClockName" value="">
+                                        <input type="hidden" id="gEndGameStart" name="gameStartName" value="">
+                                        <input type="hidden" id="gEndCurrentQuarter" name="cQtrName" value="">
+                                        <input type="hidden" id="gEndQuarterStart" name="qtrStartName" value="">
+                                        <input type="hidden" id="gEndDuration" name="qtrDurationName" value="">                                    
+                                        <input type="hidden" id="gEndGameEnd" name="gameEndName" value="">
+                                        <button type="submit" id="gameEndButton" class="btn btn-primary cKind">Game end</button>                                    
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane p-3" id="content-viewer" role="tabpane1" aria-labelledby="tab-viewer">
+                        <!-- Event viewer -->
+                        <textarea id="eventDump" name="Comment" rows="18" cols="65">????</textarea>
+                    </div>
+
+                    <div class="tab-pane p-3" id="content-navigation" role="tabpane1" aria-labelledby="tab-navigation">
+                        <!-- Navigation -->
+                        <form action="/squad">
+                            <input type="submit" value="Change team" class="cNavigation">
+                        </form>
+                        <br>
+                        <form action="/eventViewer">
+                            <input type="submit" value="Event Viewer" class="cNavigation">
+                        </form>
+                        <br>
+                        <form action="/">
+                            <input type="submit" value="Log out" class="cNavigation">
+                        </form>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
+    
 </body>
+
 </html>

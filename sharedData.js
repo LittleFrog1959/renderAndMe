@@ -16,10 +16,11 @@ var pRefs = []
 //Date=time and related information about the game
 var gStartedAt = "1"
 var currentQ = "2"
-var quarterT = "3"
-var gEndedAt = "4"
+var qStart = "3"
+var qDuration = '4'
+var gEndedAt = '5'
 
 // Holds the most recent game event
 var eventJSON = []
 
-module.exports = {squadSize: size, squadNumbers: numbers, squadNames: names, teamRefs: tRefs, playerRefs: pRefs, gameStartedAt:gStartedAt, currentQuarter:currentQ, quarterTime:quarterT, gameEndedAt:gEndedAt , eventRaw: eventJSON}
+module.exports = {squadSize:size, squadNumbers:numbers, squadNames:names, teamRefs:tRefs, playerRefs:pRefs, gameStartedAt:gStartedAt, currentQuarter:currentQ, quarterStart:qStart, qtrDuration:qDuration, gameEndedAt:gEndedAt, eventRaw: eventJSON}
